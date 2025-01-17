@@ -1,44 +1,103 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Identity;
+using Player.Application;
+using Player.Domain.Entities;
+using Player.Domain.Utils;
+using Player.Infrastructure.Persistence;
+using Serilog;
+using Serilog.Formatting.Json;
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Debug()
+    .WriteTo.Console(new JsonFormatter()).CreateBootstrapLogger();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    Log.Information("Creating builder...");
+    var builder = WebApplication.CreateBuilder(args);
 
-app.UseHttpsRedirection();
+    string? connectionString = builder.Configuration.GetConnectionString("Default");
+    Check.NotEmpty(connectionString, nameof(connectionString));
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    Log.Information("Configuring services...");
+    builder.Logging.AddSerilog();
+    builder.Services.AddMvc();
+#if DEBUG
+    builder.Services.AddControllersWithViews()
+        .AddRazorRuntimeCompilation();
+#endif
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddAuthentication(o =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .WithOpenApi();
+        o.DefaultScheme = IdentityConstants.ApplicationScheme;
+        o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    }).AddBearerToken().AddIdentityCookies();
+    builder.Services.ConfigureApplicationCookie(o =>
+    {
+        o.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+        o.LogoutPath = "/Account/Logout";
+    });
+    builder.Services.Configure<IdentityOptions>(o =>
+    {
+        o.User.RequireUniqueEmail = true;
+        o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+        o.Lockout.MaxFailedAccessAttempts = 3;
+        o.Password.RequireDigit = true;
+        o.Password.RequiredLength = 8;
+        o.Password.RequireUppercase = false;
+        o.Password.RequireLowercase = false;
+        o.Password.RequireNonAlphanumeric = false;
+    });
 
-app.Run();
+    builder.Services.AddIdentityCore<User>()
+        .AddClaimsPrincipalFactory<UserClaimsPrincipalFactory<User>>()
+        .AddDefaultTokenProviders()
+        .AddSignInManager();
+    builder.Services.AddEndpointsApiExplorer()
+        .AddHealthChecks();
+    builder.Services.AddSwaggerGen();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+    builder.Services
+        .AddPersistence(connectionString!)
+        .AddValidation();
+
+    builder.Services.AddUserService();
+
+    Log.Information("Building app...");
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.Services.ApplyDatabaseMigrations();
+
+    app.UseStaticFiles();
+    app.UseRouting();
+    app.UseCors(options =>
+        options.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+    );
+    app.UseHealthChecks("/healthcheck");
+    app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapControllers();
+    app.MapDefaultControllerRoute();
+
+    Log.Information("Running app...");
+    app.Run();
+}
+catch (Exception e)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Log.Fatal(e, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }
