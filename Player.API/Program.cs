@@ -1,8 +1,10 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
+using Player.API.Authorization;
 using Player.API.Middleware;
 using Player.API.Models;
 using Player.Application;
@@ -113,6 +115,8 @@ try
     });
 
 
+    builder.Services.AddSingleton<IAuthorizationPolicyProvider, AuthorizationPolicyProvider>();
+    builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
     builder.Services.AddTransient<ICurrentLoggedUser, CurrentLoggedUser>();
     builder.Services
         .AddPersistence(connectionString!)
