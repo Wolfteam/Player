@@ -1,6 +1,13 @@
+using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
+using Player.API.Middleware;
+using Player.API.Models;
 using Player.Application;
 using Player.Domain.Entities;
+using Player.Domain.Interfaces;
 using Player.Domain.Utils;
 using Player.Infrastructure.Persistence;
 using Serilog;
@@ -31,12 +38,16 @@ try
     {
         o.DefaultScheme = IdentityConstants.ApplicationScheme;
         o.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    }).AddBearerToken().AddIdentityCookies();
+    }).AddBearerToken(o =>
+    {
+        o.ClaimsIssuer = "App";
+    }).AddIdentityCookies();
     builder.Services.ConfigureApplicationCookie(o =>
     {
         o.ExpireTimeSpan = TimeSpan.FromMinutes(15);
         o.LogoutPath = "/Account/Logout";
     });
+
     builder.Services.Configure<IdentityOptions>(o =>
     {
         o.User.RequireUniqueEmail = true;
@@ -53,15 +64,64 @@ try
         .AddClaimsPrincipalFactory<UserClaimsPrincipalFactory<User>>()
         .AddDefaultTokenProviders()
         .AddSignInManager();
+    builder.Services.AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+        options.AssumeDefaultVersionWhenUnspecified = true;
+        options.ReportApiVersions = true;
+        options.ApiVersionReader = ApiVersionReader.Combine(
+            new UrlSegmentApiVersionReader(),
+            new HeaderApiVersionReader("X-Api-Version")
+        );
+    }).AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
     builder.Services.AddEndpointsApiExplorer()
         .AddHealthChecks();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(c =>
+    {
+        string xmlPath = Path.Combine(AppContext.BaseDirectory, "API.xml");
+        c.IncludeXmlComments(xmlPath);
 
+        var securityScheme = new OpenApiSecurityScheme
+        {
+            Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+            In = ParameterLocation.Header,
+            Name = HeaderNames.Authorization,
+            Type = SecuritySchemeType.ApiKey
+        };
+
+        string scheme = BearerTokenDefaults.AuthenticationScheme;
+        var securityReq = new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = scheme
+                    }
+                },
+                Array.Empty<string>()
+            }
+        };
+        c.AddSecurityDefinition(scheme, securityScheme);
+        c.AddSecurityRequirement(securityReq);
+    });
+
+
+    builder.Services.AddTransient<ICurrentLoggedUser, CurrentLoggedUser>();
     builder.Services
         .AddPersistence(connectionString!)
         .AddValidation();
 
-    builder.Services.AddUserService();
+    builder.Services
+        .AddUserService()
+        .AddPlaylistService()
+        .AddMediaService();
 
     Log.Information("Building app...");
     var app = builder.Build();
@@ -82,6 +142,8 @@ try
             .AllowAnyHeader()
     );
     app.UseHealthChecks("/healthcheck");
+    app.UseMiddleware<ExceptionHandlerMiddleware>();
+
     app.UseHttpsRedirection();
 
     app.UseAuthentication();
