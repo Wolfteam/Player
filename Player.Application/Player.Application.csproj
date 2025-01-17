@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <Folder Include="Medias\" />
-    <Folder Include="Playlists\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Player.Domain\Player.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>

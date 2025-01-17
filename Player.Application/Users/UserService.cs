@@ -19,7 +19,7 @@ internal class UserService : IUserService
         IValidatorService validator,
         UserManager<User> userManager)
     {
-        _logger = loggerFactory.CreateLogger<UserService>();
+        _logger = loggerFactory.CreateLogger(GetType());
         _validator = validator;
         _userManager = userManager;
     }
