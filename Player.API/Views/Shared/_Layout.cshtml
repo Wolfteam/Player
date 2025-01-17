@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player</title>
+    <link rel="stylesheet" href="~/libs/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container-sm mt-3">
+        <div class="row mb-3">
+            <div class="col text-center">
+                <h1 class="title mt-3">
+                    Player
+                </h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-8 col-xl-4 offset-md-2 offset-xl-4 text-center mb-3">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    @* <script src="~/libs/jquery/jquery.min.js"></script> *@
+    <script src="~/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", false)
+</body>
+</html>

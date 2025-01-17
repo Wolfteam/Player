@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+}
+
+@if (isAuthenticated)
+{
+    var authenticationResult = await Context.AuthenticateAsync();
+    string? issued = authenticationResult.Properties?.Items[".issued"];
+    string? expires = authenticationResult.Properties?.Items[".expires"];
+    <div>
+        <p>You are signed in as</p>
+        <h2>@User.Identity!.Name</h2>
+        <hr />
+        <dl>
+            <dt>Issued</dt>
+            <dd>@issued</dd>
+            <dt>Expires</dt>
+            <dd>@expires</dd>
+        </dl>
+        <hr />
+        <p><a class="btn btn-dark" asp-controller="Account" asp-action="Logout">Sign out</a></p>
+    </div>
+}
+
+@if (!isAuthenticated)
+{
+    <div>
+        <p>You are not signed in</p>
+        <p><a class="btn btn-sm btn-dark" asp-controller="Account" asp-action="Login">Sign in</a></p>
+    </div>
+}

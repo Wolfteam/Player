@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Player.API.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<form autocomplete="off" method="post">
+    <input type="hidden" asp-for="ReturnUrl"/>
+    <div class="card">
+        <input type="text" class="form-control form-control-lg" placeholder="Email" asp-for="Email">
+        <input type="text" class="form-control form-control-lg" placeholder="First Name" asp-for="FirstName">
+        <input type="text" class="form-control form-control-lg" placeholder="Last Name" asp-for="LastName">
+        <input type="password" class="form-control form-control-lg form-control-last" placeholder="Password"
+               asp-for="Password" minlength="8" maxlength="16">
+    </div>
+    <div asp-validation-summary="All"></div>
+    <p>
+        @if (Model.Registered != true)
+        {
+            <button hitype="submit" class="btn btn-dark btn-block mt-3 btn-blue">Register
+            </button>
+        }
+
+    </p>
+
+    <a hidden="hidden" asp-action="Login" id="redirect"></a>
+    @{
+        if (Model.Registered == true)
+        {
+            <p>You were successfully registered. Redirecting...</p>
+            <script>
+                setTimeout(function () {
+                    const element = document.getElementById("redirect");
+                    element.click();
+                }, 5000);
+            </script>
+        }
+    }
+</form>
