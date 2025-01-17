@@ -31,13 +31,17 @@ public class Init : Migration
 
         Create.Table(nameof(Playlist))
             .WithColumn(nameof(Playlist.Id)).AsInt64().PrimaryKey().Identity()
+            .WithColumn(nameof(Playlist.UserId)).AsInt64().NotNullable().ForeignKey(nameof(User), nameof(User.Id))
             .WithColumn(nameof(Playlist.Name)).AsString(100).NotNullable()
             .WithColumn(nameof(Playlist.CreatedAt)).AsDateTime().NotNullable()
             .WithColumn(nameof(Playlist.UpdatedAt)).AsDateTime().Nullable();
 
         Create.Table(nameof(Media))
             .WithColumn(nameof(Media.Id)).AsInt64().PrimaryKey().Identity()
-            .WithColumn(nameof(Media.Name)).AsString(int.MaxValue).NotNullable()
+            .WithColumn(nameof(Media.Name)).AsString(100).NotNullable()
+            .WithColumn(nameof(Media.Path)).AsString(500).NotNullable()
+            .WithColumn(nameof(Media.Length)).AsInt64().NotNullable()
+            .WithColumn(nameof(Media.LengthInSeconds)).AsFloat().NotNullable()
             .WithColumn(nameof(Media.CreatedAt)).AsDateTime().NotNullable()
             .WithColumn(nameof(Media.UpdatedAt)).AsDateTime().Nullable()
             .WithColumn(nameof(Media.PlaylistId)).AsInt64().NotNullable().ForeignKey(nameof(Playlist), nameof(Playlist.Id));

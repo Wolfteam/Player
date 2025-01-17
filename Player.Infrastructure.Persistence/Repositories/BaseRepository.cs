@@ -49,12 +49,12 @@ internal class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity 
         }
         return Context.Update<TEntity>()
             .SetSource(entity)
-            .ExecuteUpdatedAsync();
+            .ExecuteAffrowsAsync();
     }
 
     public virtual Task Delete(long id)
     {
         Check.NotEmpty(id, nameof(id));
-        return Context.Delete<TEntity>().Where(u => u.Id == id).ExecuteDeletedAsync();
+        return Context.Delete<TEntity>().Where(u => u.Id == id).ExecuteAffrowsAsync();
     }
 }
