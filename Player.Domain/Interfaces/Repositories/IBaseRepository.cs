@@ -9,4 +9,6 @@ public interface IBaseRepository<TEntity> where TEntity : IBaseEntity
     Task Create(TEntity entity);
 
     Task Update(TEntity entity);
+
+    Task Delete(long id);
 }
