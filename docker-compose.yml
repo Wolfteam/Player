@@ -1,0 +1,40 @@
+name: "player"
+networks:
+  app_network:
+    driver: bridge
+volumes:
+  mysql_data:
+services:
+  db_mysql:
+    image: mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - app_network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      $MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: main
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 55
+
+  app:
+    depends_on:
+      db_mysql:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: Player.API/Dockerfile
+    ports:
+      - "5050:8081"
+    networks:
+      - app_network
+    restart: on-failure
+    environment:
+      ConnectionStrings__Default: "server=db_mysql;userid=root;pwd=1234;port=3306;database=main"
