@@ -1,3 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <ItemGroup>
+    <Folder Include="Medias\" />
+    <Folder Include="Playlists\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Player.Domain\Player.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
+  </ItemGroup>
 </Project>
