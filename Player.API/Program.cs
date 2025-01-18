@@ -85,7 +85,10 @@ try
     builder.Services.AddSwaggerGen(c =>
     {
         string xmlPath = Path.Combine(AppContext.BaseDirectory, "API.xml");
-        c.IncludeXmlComments(xmlPath);
+        if (File.Exists(xmlPath))
+        {
+            c.IncludeXmlComments(xmlPath);
+        }
 
         var securityScheme = new OpenApiSecurityScheme
         {
@@ -167,3 +170,5 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+public partial class Program { }
