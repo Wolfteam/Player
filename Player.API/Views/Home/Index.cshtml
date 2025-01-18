@@ -1,37 +1,295 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-@using Microsoft.AspNetCore.Authentication
-@using Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@model HomeViewModel
 @{
+    ViewData["RenderTitle"] = bool.FalseString;
     bool isAuthenticated = User.Identity?.IsAuthenticated ?? false;
 }
 
-@if (isAuthenticated)
-{
-    var authenticationResult = await Context.AuthenticateAsync();
-    string? issued = authenticationResult.Properties?.Items[".issued"];
-    string? expires = authenticationResult.Properties?.Items[".expires"];
-    <div>
-        <p>You are signed in as</p>
-        <h2>@User.Identity!.Name</h2>
-        <hr />
-        <dl>
-            <dt>Issued</dt>
-            <dd>@issued</dd>
-            <dt>Expires</dt>
-            <dd>@expires</dd>
-        </dl>
-        <hr />
-        <p><a class="btn btn-dark" asp-controller="Account" asp-action="Logout">Sign out</a></p>
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <span class="navbar-brand mb-0 h1">Welcome back @User.Identity!.Name</span>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                </li>
+            </ul>
+        </div>
     </div>
-}
+</nav>
 
-@if (!isAuthenticated)
-{
-    <div>
-        <p>You are not signed in</p>
-        <p><a class="btn btn-sm btn-dark" asp-controller="Account" asp-action="Login">Sign in</a></p>
+<div class="container">
+    <div class="row mb-5">
+        <div class="col justify-content-center align-items-center ">
+            @if (!isAuthenticated)
+            {
+                <p>You are not signed in</p>
+                <a class="btn btn-sm btn-dark" asp-controller="Account" asp-action="Login">Sign in</a>
+            }
+        </div>
     </div>
+
+    <div class="row align-items-center">
+        <h1>Playlists</h1>
+        @{
+            foreach (var playlist in Model.Playlists.Playlists)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    <partial name="Shared/_PlaylistCard" model="playlist"/>
+                </div>
+            }
+        }
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 text-center p-2">
+            <button class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#playlist-modal">Create
+            </button>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("Shared/_PlaylistModal", new PlaylistViewModel())
+@await Html.PartialAsync("Shared/_MediasModal")
+
+@section Scripts {
+    <script type="text/javascript">
+        const plModal = document.getElementById('playlist-modal');
+        const mediasModal = document.getElementById('medias-modal');
+        const player = document.getElementById('player');
+        const playerElapsed = document.getElementById('player-elapsed');
+
+        function onPlaylistModalOpened(event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-pl-id');
+            const name = button.getAttribute('data-pl-name');
+            const update = id && id > 0;
+
+            const modalTitle = plModal.querySelector('.modal-title');
+            const idInput = plModal.querySelector(".modal-body #Id");
+            const nameInput = plModal.querySelector('.modal-body #Name');
+            modalTitle.textContent = update ? `Update playlist (${name})` : 'Create playlist';
+            idInput.value = id;
+            nameInput.value = name;
+            plModal.parentElement.action = plModal.parentElement.getAttribute(update ? 'data-update-action' : 'data-create-action');
+        }
+
+        function createOrUpdatePlaylist(event) {
+            event.preventDefault();
+            const idInput = plModal.querySelector(".modal-body #Id");
+            const nameInput = plModal.querySelector('.modal-body #Name');
+            const data = {
+                id: idInput.value,
+                name: nameInput.value
+            };
+            $.ajax({
+                type: 'POST',
+                url: plModal.parentElement.action,
+                data: data,
+                success: (response) => {
+                    console.log(response);
+                    if (response.succeed) {
+                        location.reload();
+                    }
+                },
+                error: (response) => {
+                    console.log(response);
+                }
+            });
+        }
+
+        function createMedia(event, input) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            $.ajax({
+                type: 'POST',
+                url: input.parentElement.action,
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: (response) => {
+                    console.log(response);
+                    if (response.succeed) {
+                        location.reload();
+                    }
+                },
+                error: (response) => {
+                    console.log(response);
+                }
+            });
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes'
+
+            const k = 1024
+            const dm = decimals < 0 ? 0 : decimals
+            const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+            const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+        }
+
+        function onMediasModalOpened(event, btn) {
+            bootstrap.Modal.getOrCreateInstance(mediasModal).show();
+            const deleteMediaAction = '@Url.Action("DeleteMedia")';
+            const getMediaDataAction = '@Url.Action("GetMediaData")';
+            const container = mediasModal.querySelector('.modal-body .list-group')
+            container.replaceChildren();
+            $.ajax({
+                type: 'GET',
+                url: btn.getAttribute('data-get-medias-action'),
+                success: (response) => {
+                    const children = [];
+                    if (response.succeed) {
+                        for (const media of response.result) {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item d-flex justify-content-between align-items-start';
+
+                            const div = document.createElement('div');
+                            div.className = 'ms-2 me-auto';
+
+                            const title = document.createElement('div');
+                            title.className = 'fw-bold';
+                            title.textContent = media.name;
+                            div.appendChild(title);
+                            div.append(`${formatBytes(media.length)} | ${Math.round(media.duration)} Second(s)`);
+
+                            const queryParams = `playListId=${media.playlistId}&mediaId=${media.id}`;
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'badge text-bg-danger';
+                            deleteBtn.textContent = 'Delete';
+                            const form = document.createElement('form');
+                            form.setAttribute('method', 'post');
+                            form.style.display = 'contents';
+                            const deleteAction = `${deleteMediaAction}?${queryParams}`;
+                            form.setAttribute('action', deleteAction);
+                            form.appendChild(deleteBtn);
+
+                            const getDataAction = `${getMediaDataAction}?${queryParams}`;
+                            const playBtn = document.createElement('button');
+                            playBtn.className = 'badge text-bg-success';
+                            playBtn.textContent = 'Play';
+                            playBtn.addEventListener('click', _ => loadAudio(getDataAction))
+
+                            li.appendChild(div);
+                            li.appendChild(playBtn);
+                            li.appendChild(form);
+
+                            children.push(li);
+                        }
+                    }
+
+                    if (children.length === 0) {
+                        const empty = document.createElement('h5');
+                        empty.textContent = 'No medias';
+                        empty.className = 'text-center';
+                        children.push(empty);
+                    }
+
+                    container.replaceChildren(...children);
+                },
+                error: (response) => {
+                    console.log(response);
+                }
+            });
+        }
+
+        function loadAudio(action) {
+            stopAudio();
+
+            console.log('Loading action', action);
+            const $player = $(player);
+            //$player.append(`<source src="${action}" type='audio/wav'>`);
+            $player.attr('src', action);
+            triggerPlayerEvent('play');
+        }
+
+        function pauseAudio() {
+            if (player.duration) {
+                const event = player.paused ? 'play' : 'pause';
+                const iconClass = player.paused ? 'bi-play-circle' : 'bi-pause-circle';
+                const icon = document.querySelector('#player-pause i');
+                icon.className = `bi ${iconClass}`;
+                triggerPlayerEvent(event);
+            }
+        }
+
+        function stopAudio() {
+            triggerPlayerEvent('stop');
+        }
+
+        function triggerPlayerEvent(event) {
+            const $player = $(player);
+            switch (event) {
+                case 'play':
+                    $player.trigger('play');
+                    break;
+                case 'pause':
+                    $player.trigger('pause');
+                    break;
+                case 'stop':
+                    $player.trigger('stop');
+                    $player.empty();
+                    $player.attr('src', '');
+                    playerElapsed.textContent = ''
+                    break;
+            }
+        }
+
+        function formatSeconds(seconds) {
+            if (!seconds || seconds < 0) {
+                return null;
+            }
+            let secondsString = new Date(seconds * 1000).toISOString();
+            if (seconds > 3600) {
+                return secondsString.substring(11, 16);
+
+            }
+            return secondsString.substring(14, 19);
+        }
+
+        plModal.addEventListener('show.bs.modal', onPlaylistModalOpened);
+        plModal.querySelector('button[type="submit"]').addEventListener('click', createOrUpdatePlaylist);
+        document.querySelectorAll('button[name="pl-view-medias"]').forEach(btn => {
+            btn.addEventListener('click', event => onMediasModalOpened(event, btn));
+        });
+
+        document.getElementsByName("pl-upload").forEach((btn) => {
+            btn.addEventListener("click", _ => {
+                const inputFile = btn.parentElement.querySelector('input[type="file"]');
+                inputFile.click();
+            });
+        });
+
+        document.querySelectorAll('input[type="file"]').forEach((input) => {
+            input.addEventListener('change', event => createMedia(event, input));
+        });
+
+        document.getElementById('player-pause').addEventListener('click', pauseAudio);
+        document.getElementById('player-stop').addEventListener('click', stopAudio);
+
+        player.addEventListener('timeupdate', (_) => {
+            const elapsed = Math.round(player.currentTime);
+            const duration = Math.round(player.duration);
+            const elapsedString = formatSeconds(elapsed);
+            const durationString = formatSeconds(duration);
+
+            if (!elapsedString && !durationString) {
+                return;
+            }
+            playerElapsed.textContent = `${elapsedString} / ${durationString}`;
+        });
+
+        player.addEventListener('ended', stopAudio);
+
+    </script>
 }

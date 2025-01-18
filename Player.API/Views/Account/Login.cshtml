@@ -1,17 +1,20 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Player.API.ViewModels.LoginViewModel
+﻿@model LoginViewModel
 @{
     ViewData["Title"] = "Login";
 }
-<form autocomplete="off" asp-route="Login" method="post">
-    <input type="hidden" asp-for="ReturnUrl"/>
-    <div class="card">
-        <input type="text" class="form-control form-control-lg" placeholder="Email" asp-for="Email" autofocus>
-        <input type="password" class="form-control form-control-lg form-control-last" placeholder="Password" asp-for="Password">
+<div class="row">
+    <div class="col-xs-12 col-md-8 col-xl-4 offset-md-2 offset-xl-4 text-center mb-3">
+        <form autocomplete="off" asp-route="Login" method="post">
+            <input type="hidden" asp-for="ReturnUrl"/>
+            <div class="card">
+                <input type="text" class="form-control form-control-lg" placeholder="Email" asp-for="Email" autofocus>
+                <input type="password" class="form-control form-control-lg form-control-last" placeholder="Password" asp-for="Password">
+            </div>
+            <div asp-validation-summary="All"></div>
+            <p>
+                <button type="submit" class="btn btn-dark btn-block mt-3 btn-blue">Login</button>
+                <a asp-action="Register" class="btn btn-dark btn-block mt-3 btn-blue">Register</a>
+            </p>
+        </form>
     </div>
-    <div asp-validation-summary="All"></div>
-    <p>
-        <button type="submit" class="btn btn-dark btn-block mt-3 btn-blue">Login</button>
-        <a asp-action="Register" class="btn btn-dark btn-block mt-3 btn-blue">Register</a>
-    </p>
-</form>
+</div>
