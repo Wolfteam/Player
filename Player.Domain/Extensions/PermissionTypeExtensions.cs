@@ -18,6 +18,10 @@ public static class PermissionTypeExtensions
     public static string GetPermissionStringValue<TEnum>(this TEnum permission)
         where TEnum : Enum
     {
+        if (!Enum.IsDefined(typeof(TEnum), permission))
+        {
+            throw new ArgumentOutOfRangeException(nameof(permission), permission, null);
+        }
         object val = Convert.ChangeType(permission, typeof(long));
         return val.ToString()!;
     }

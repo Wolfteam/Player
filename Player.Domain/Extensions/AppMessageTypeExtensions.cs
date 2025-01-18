@@ -12,12 +12,18 @@ public static class AppMessageTypeExtensions
             AppMessageType.UnknownError => "Unknown error occurred",
             AppMessageType.NotFound => "The resource was not found",
             AppMessageType.ResourceAlreadyExists => "Resource already exists",
+            AppMessageType.UserIsLockedOut => "User is locked out",
             _ => throw new ArgumentOutOfRangeException(nameof(msg), msg, null)
         };
     }
 
     public static string GetErrorCode(this AppMessageType msg)
     {
+        if (!Enum.IsDefined(typeof(AppMessageType), msg))
+        {
+            throw new ArgumentOutOfRangeException(nameof(msg), msg, null);
+        }
+
         int msgId = (int)msg;
         return $"BACKEND_{msgId}";
     }
