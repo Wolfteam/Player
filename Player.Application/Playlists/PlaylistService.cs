@@ -71,6 +71,11 @@ internal class PlaylistService : IPlaylistService
         UpdatePlaylistRequestDto dto,
         ICurrentLoggedUser currentLoggedUser)
     {
+        if (Check.IsEmpty(id))
+        {
+            return Result.InvalidId<PlaylistResponseDto>(id);
+        }
+
         EmptyResultDto validationResult = _validator.Validate(dto);
         if (!validationResult.Succeed)
         {
