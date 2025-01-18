@@ -1,0 +1,36 @@
+@model PlaylistViewModel
+
+<div class="card m-2">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg" class="card-img-top"
+         alt="..." style="height: 300px;object-fit: cover">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Name</h5>
+        <p class="card-text">@Model.MediaCount Media(s)</p>
+    </div>
+    <div class="card-footer text-end">
+        <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary me-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#playlist-modal"
+                    data-pl-id="@Model.Id"
+                    data-pl-name="@Model.Name">
+                <i class="bi bi-box-arrow-up-right"></i>
+            </button>
+            <form asp-action="DeletePlaylist" asp-route-id="@Model.Id">
+                <button type="submit" class="btn btn-sm btn-danger me-1">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+            </form>
+            <form asp-action="CreateMedia" asp-route-playListId="@Model.Id">
+                <input type="file" data-pl-id="@Model.Id" accept=".wav" hidden="hidden">
+                <button type="button" name="pl-upload" class="btn btn-sm btn-warning me-1">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                </button>
+            </form>
+            <button type="button" name="pl-view-medias" class="btn btn-sm btn-success"
+                    data-get-medias-action="@Url.Action("GetAllMedia", new { playListId = Model.Id })">
+                <i class="bi bi-music-note-list"></i>
+            </button>
+        </div>
+    </div>
+</div>
