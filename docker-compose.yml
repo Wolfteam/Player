@@ -32,7 +32,8 @@ services:
       context: .
       dockerfile: Player.API/Dockerfile
     ports:
-      - "5050:8081"
+      - "5050:8080"
+      - "5051:8081"
     networks:
       - app_network
     restart: on-failure
