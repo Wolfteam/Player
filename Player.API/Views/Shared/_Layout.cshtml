@@ -27,22 +27,24 @@
 }
 @RenderBody()
 
-<footer class="fixed-bottom bg-primary-subtle text-center">
-    <div class="btn-group">
-        @* <button id="player-play" class="btn btn-lg" type="button"> *@
-        @*     <i class="bi bi-play-circle"></i> *@
-        @* </button> *@
-        <button id="player-pause" class="btn btn-lg" type="button">
-            <i class="bi bi-pause-circle"></i>
-        </button>
-        <button id="player-stop" class="btn btn-lg" type="button">
-            <i class="bi bi-stop-circle"></i>
-        </button>
-    </div>
-    <small id="player-elapsed"></small>
-    <audio id="player" preload="none" hidden="hidden">
-    </audio>
-</footer>
+@{
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        <footer class="fixed-bottom bg-primary-subtle text-center">
+            <div class="btn-group">
+                <button id="player-pause" class="btn btn-lg" type="button">
+                    <i class="bi bi-pause-circle"></i>
+                </button>
+                <button id="player-stop" class="btn btn-lg" type="button">
+                    <i class="bi bi-stop-circle"></i>
+                </button>
+            </div>
+            <small id="player-elapsed"></small>
+            <audio id="player" preload="none" hidden="hidden">
+            </audio>
+        </footer>
+    }
+}
 
 <script src="~/libs/jquery/jquery.min.js"></script>
 <script src="~/libs/bootstrap/js/bootstrap.min.js"></script>
