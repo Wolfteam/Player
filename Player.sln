@@ -10,13 +10,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.Application.UnitTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.Infrastructure.Persistence", "Player.Infrastructure.Persistence\Player.Infrastructure.Persistence.csproj", "{24AE3066-772F-4A28-83FC-B3DA9A473396}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.API.UnitTests", "Player.API.UnitTests\Player.API.UnitTests.csproj", "{E81AD912-D819-45BC-8BA8-20120D0A64AE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.Infrastructure.Persistence.IntegrationTests", "Player.Infrastructure.Persistence.IntegrationTests\Player.Infrastructure.Persistence.IntegrationTests.csproj", "{13992F19-80F4-4FDF-9298-BEE32670B09F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.DockerCompose", "Player.DockerCompose.dcproj", "{960FF993-C746-4536-AFE7-CB8D6AA8AEC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.API.IntegrationTests", "Player.API.IntegrationTests\Player.API.IntegrationTests.csproj", "{AE554298-C665-4695-A62D-B997634795CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player.Domain.UnitTests", "Player.Domain.UnitTests\Player.Domain.UnitTests.csproj", "{2AA3D817-305E-4C87-A90B-CD607CE57C36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,10 +46,6 @@ Global
 		{24AE3066-772F-4A28-83FC-B3DA9A473396}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24AE3066-772F-4A28-83FC-B3DA9A473396}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24AE3066-772F-4A28-83FC-B3DA9A473396}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E81AD912-D819-45BC-8BA8-20120D0A64AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E81AD912-D819-45BC-8BA8-20120D0A64AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E81AD912-D819-45BC-8BA8-20120D0A64AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E81AD912-D819-45BC-8BA8-20120D0A64AE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13992F19-80F4-4FDF-9298-BEE32670B09F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13992F19-80F4-4FDF-9298-BEE32670B09F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13992F19-80F4-4FDF-9298-BEE32670B09F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -56,10 +54,19 @@ Global
 		{960FF993-C746-4536-AFE7-CB8D6AA8AEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{960FF993-C746-4536-AFE7-CB8D6AA8AEC6}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{960FF993-C746-4536-AFE7-CB8D6AA8AEC6}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{AE554298-C665-4695-A62D-B997634795CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE554298-C665-4695-A62D-B997634795CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE554298-C665-4695-A62D-B997634795CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE554298-C665-4695-A62D-B997634795CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AA3D817-305E-4C87-A90B-CD607CE57C36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AA3D817-305E-4C87-A90B-CD607CE57C36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AA3D817-305E-4C87-A90B-CD607CE57C36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AA3D817-305E-4C87-A90B-CD607CE57C36}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6A0ECF7E-A1D6-453B-A2F1-6DDED2B1383E} = {647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}
-		{E81AD912-D819-45BC-8BA8-20120D0A64AE} = {647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}
 		{13992F19-80F4-4FDF-9298-BEE32670B09F} = {647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}
+		{AE554298-C665-4695-A62D-B997634795CC} = {647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}
+		{2AA3D817-305E-4C87-A90B-CD607CE57C36} = {647DDE80-AAF8-4271-8BF4-8C43ABD5FF76}
 	EndGlobalSection
 EndGlobal
