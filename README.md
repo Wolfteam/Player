@@ -1,7 +1,7 @@
 # Player
-    > Simple app to create playlists, upload files (WAV only at the moment) and play them later 
+> Simple app to create playlists, upload files (WAV only at the moment) and play them later 
 
-### Usage
+## Usage
 
 Run ``docker compose up -d``
 Above command will start a mysql database at **localhost:3307** and the app at **http://localhost:5050**,
@@ -17,8 +17,8 @@ You will need to register to start using the app
 
 After that you can start creating playlists and uploading files to them
 <p align="center">
-  <img height="500" width="400" src="images/main.png" alt="...">
-  <img height="400" width="400" src="images/medias_modal.png" alt="...">
+  <img height="450" width="400" src="images/main.png" alt="...">
+  <img height="450" width="400" src="images/medias_modal.png" alt="...">
 </p>
 
 You can also check the swagger endpoint **http://localhost:5050/swagger/index.html** 
