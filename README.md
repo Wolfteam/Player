@@ -1,5 +1,4 @@
-# Shiori
-
+# Player
     > Simple app to create playlists, upload files (WAV only at the moment) and play them later 
 
 ### Usage
